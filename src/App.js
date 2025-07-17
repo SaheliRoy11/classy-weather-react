@@ -10,19 +10,44 @@ class Counter extends React.Component {
     //initialising state
     //In class components there is a huge state object and not multiple state variables like in functional component
     this.state = { count: 5 };
+    this.handleDecrement = this.handleDecrement.bind(this);
+    this.handleIncrement = this.handleIncrement.bind(this);
+  }
+
+  handleDecrement() {
+    //console.log(this);//undefined.In other words, the this keyword inside the event handler is undefined.But we need the this keyword to point to the current component instance as we have to update the state.
+    //The reason for it being undefined is just the way JS works. When React calls this event handler, behind the scenes it first creates a copy of this function, and hence the function call is just a normal function call which is not bound to any object.This is why the function looses it's binding to the this keyword.
+    //In summary, all event handlers called from inside JSX looses its binding to 'this'.
+
+
+    //setState() works similar to state setter functions we receive from useState hook call.There are two ways to update state:
+    //setting state using callback. curState is the entire current state object
+    this.setState(curState => {
+      return {count: curState.count - 1}
+    });
+
+    //setting state by passing the new value.
+    // this.setState({count: this.state.count - 1})
+  }
+
+  handleIncrement() {
+    this.setState(curState => { return {count: curState.count + 1}})
   }
 
   render() {
+
+    const date = new Date('june 21 2027');
+    date.setDate(date.getDate() + this.state.count);
+
     return (
       <div>
-        <button>-</button>
+        <button onClick={this.handleDecrement}>-</button>
         <span>
           {
-            //'this' points to the current component instance
-            this.state.count
+            date.toDateString()
           }
         </span>
-        <button>+</button>
+        <button onClick={this.handleIncrement}>+</button>
       </div>
     );
   }
