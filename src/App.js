@@ -74,21 +74,15 @@ class App extends React.Component {
     }
   }
 
+  setLocation = (e) => this.setState({ location: e.target.value })
+
   render() {
     return (
       <div className="app">
         <h1>Classy Weather</h1>
-        <div>
-          <input
-            type="text"
-            placeholder="Search from location..."
-            value={this.state.location}
-            onChange={
-              //we did not have to manually bind 'this' to the event handler here because we do that only when the event handler is defined as outside method.
-              (e) => this.setState({ location: e.target.value })
-            }
-          ></input>
-        </div>
+
+        <Input location={this.state.location} onChangeLocation={this.setLocation}/>
+        
         <button onClick={this.fetchWeather}>Get Weather</button>
 
         {this.state.isLoading && <p className="loader">Loading...</p>}
@@ -105,6 +99,21 @@ class App extends React.Component {
 }
 
 export default App;
+
+class Input extends React.Component {
+  render() {
+
+    return <div>
+          <input
+            type="text"
+            placeholder="Search from location..."
+            value={this.props.location}
+            onChange={this.props.onChangeLocation}
+          ></input>
+        </div>
+  }
+}
+
 
 //Create a new component for displaying the full weather
 //There is no constructor method in Weather and Day component, this is because if we dont have to initialize state or explicitly bind the 'this' keyword to some event handler method, then we dont need the constructor method in that component
