@@ -36,13 +36,16 @@ class App extends React.Component {
 
   //class fields
   state = {
-      location: "lisbon",
+      location: "",
       isLoading: false,
       displayLocation: "",
       weather: {},
     };
 
   fetchWeather = async() => {
+
+    if(this.state.location.length < 2) return this.setState({weather: {}});//if name of search location has less than 2 characters then dont start fetching data
+
     try {
       this.setState({ isLoading: true }); //loading indicator.In the setState() we only need to mention properties we want to change
 
@@ -68,7 +71,7 @@ class App extends React.Component {
       const weatherData = await weatherRes.json();
       this.setState({ weather: weatherData.daily });
     } catch (err) {
-      console.err(err);
+      console.log(err);
     } finally {
       this.setState({ isLoading: false });
     }
@@ -76,14 +79,29 @@ class App extends React.Component {
 
   setLocation = (e) => this.setState({ location: e.target.value })
 
+  //This lifecycle method is called immediately after the component has been rendered, it is the closest thing to useEffect hook on [] dependency. It will run only on mount but not on re-render
+  //performs initial side effects as the component loads
+  componentDidMount() {
+
+    this.setState({location: localStorage.getItem('location') || ''})//as the component mounts it will read the data from local storage and set the state, if there is no data then set it to empty string.Hence it will re-render the component and after the re-render, componentDidUpdate method will be called
+  }
+
+  //React gives this lifecycle method access to previous state and props.Similar to useEffect with variable dependency array, like we can use prevState of location to check if it has changed.The difference is that this method is not called on mount, only on re-render.
+  //We can also choose not to do anything with prevProps or prevState
+  componentDidUpdate(prevProps, prevState) {
+    if(this.state.location !== prevState.location) {
+      this.fetchWeather();//enables to search for the weather as we type
+
+      localStorage.setItem("location", this.state.location);//store the name of location being searched
+    }
+  }
+
   render() {
     return (
       <div className="app">
         <h1>Classy Weather</h1>
 
         <Input location={this.state.location} onChangeLocation={this.setLocation}/>
-        
-        <button onClick={this.fetchWeather}>Get Weather</button>
 
         {this.state.isLoading && <p className="loader">Loading...</p>}
 
@@ -118,6 +136,13 @@ class Input extends React.Component {
 //Create a new component for displaying the full weather
 //There is no constructor method in Weather and Day component, this is because if we dont have to initialize state or explicitly bind the 'this' keyword to some event handler method, then we dont need the constructor method in that component
 class Weather extends React.Component {
+
+  //the Weather component will unmount if the search location input field is empty
+  //This lifecycle method is very similar to returning a clean up function from useEffect.The only difference is that this function will not run in between re-renders
+  // componentWillUnmount() {
+  //   console.log('Weather unmount');//Just for understanding example.
+  // }
+
   render() {
     //console.log(this.props); //the props received
     const {
