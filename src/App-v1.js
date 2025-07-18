@@ -33,16 +33,19 @@ function formatDay(dateStr) {
 }
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-  //class fields
-  state = {
+    this.state = {
       location: "lisbon",
       isLoading: false,
       displayLocation: "",
       weather: {},
     };
+    this.fetchWeather = this.fetchWeather.bind(this);
+  }
 
-  fetchWeather = async() => {
+  async fetchWeather() {
     try {
       this.setState({ isLoading: true }); //loading indicator.In the setState() we only need to mention properties we want to change
 
